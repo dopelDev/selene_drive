@@ -1,0 +1,122 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\begin{document}
+
+\section*{Segmentación de Video basada en Diferencia de Histograma}
+
+\subsection*{Algoritmo de Detección de Escenas basada en Diferencia de Histograma}
+
+Este algoritmo detecta cambios de escena en un video al calcular la diferencia entre los histogramas de cuadros consecutivos. Un cambio significativo en la diferencia indica un cambio de escena.
+
+\begin{enumerate}
+    \item \textbf{Calcular Histogramas de Cuadros:} Sean \( I_t \) la imagen (cuadro) en el tiempo \( t \). Calculamos el histograma de la imagen, \( H_t \), que es un vector donde cada componente \( H_t(i) \) representa la frecuencia de píxeles en el bin \( i \).
+    
+    \[
+    H_t = \text{histograma}(I_t)
+    \]
+    
+    \item \textbf{Calcular la Diferencia entre Histogramas:} Calculamos la diferencia \( D_t \) entre los histogramas de cuadros consecutivos:
+    
+    \[
+    D_t = \sum_{i=1}^{N} \left| H_t(i) - H_{t-1}(i) \right|
+    \]
+    
+    donde \( N \) es el número de bins en el histograma.
+    
+    \item \textbf{Detectar Cambios de Escena:} Definimos un umbral \( T \) y detectamos un cambio de escena si \( D_t \) supera \( T \):
+    
+    \[
+    \text{si} \ D_t > T \ \text{entonces hay un cambio de escena en} \ t
+    \]
+\end{enumerate}
+
+\subsection*{Algoritmo}
+\begin{algorithm}
+\caption{Detectar Escenas}
+\begin{algorithmic}[1]
+\STATE \textbf{function} \textsc{detect\_scenes}(video\_path, threshold)
+\STATE \quad abrir archivo de video en video\_path
+\STATE \quad prev\_hist = histograma(primer cuadro)
+\STATE \quad scene\_changes = []
+\STATE \quad \textbf{for} cada cuadro en el video
+\STATE \quad \quad curr\_hist = histograma(cuadro actual)
+\STATE \quad \quad diff = \sum_{i=1}^{N} |curr\_hist[i] - prev\_hist[i]|
+\STATE \quad \quad \textbf{if} diff > threshold \textbf{then}
+\STATE \quad \quad \quad scene\_changes.append(tiempo actual)
+\STATE \quad \quad prev\_hist = curr\_hist
+\STATE \quad \textbf{return} scene\_changes
+\end{algorithmic}
+\end{algorithm}
+
+\section*{Reconstrucción de Video basada en Ordenación y Concatenación}
+
+\subsection*{Algoritmo de Ordenación y Concatenación}
+
+Este algoritmo reensambla un video a partir de segmentos, ordenándolos según su posición original y concatenándolos para formar el video completo.
+
+\begin{enumerate}
+    \item \textbf{Ordenar Segmentos:} Sea \( S = \{S_1, S_2, \ldots, S_n\} \) el conjunto de segmentos de video, donde cada segmento \( S_i \) tiene una posición original \( p_i \) en el video original.
+    
+    Ordenamos los segmentos según \( p_i \):
+    
+    \[
+    S_{\text{ordenado}} = \text{sort}(S, \text{by} \ p_i)
+    \]
+    
+    \item \textbf{Concatenar Segmentos:} Concatenamos los segmentos ordenados para formar el video reconstruido \( V \):
+    
+    \[
+    V = S_{\text{ordenado}}[1] + S_{\text{ordenado}}[2] + \ldots + S_{\text{ordenado}}[n]
+    \]
+    
+    donde \( + \) denota la operación de concatenación de video.
+\end{enumerate}
+
+\subsection*{Algoritmo}
+\begin{algorithm}
+\caption{Reconstruir Video}
+\begin{algorithmic}[1]
+\STATE \textbf{function} \textsc{reassemble\_video}(segments)
+\STATE \quad ordenar segments por posición original
+\STATE \quad video = concatenar segments ordenados
+\STATE \quad \textbf{return} video
+\end{algorithmic}
+\end{algorithm}
+
+\section*{Matemáticas del Algoritmo de Interpolación de Transiciones}
+
+\subsection*{Algoritmo de Interpolación de Transiciones}
+
+Este algoritmo suaviza las transiciones entre segmentos de video interpolando los cuadros finales de un segmento y los cuadros iniciales del siguiente.
+
+\begin{enumerate}
+    \item \textbf{Ordenar Segmentos:} Similar al algoritmo de ordenación y concatenación:
+    
+    \[
+    S_{\text{ordenado}} = \text{sort}(S, \text{by} \ p_i)
+    \]
+    
+    \item \textbf{Calcular Interpolación entre Segmentos:} Para suavizar la transición entre dos segmentos \( S_i \) y \( S_{i+1} \), interpolamos los cuadros finales de \( S_i \) y los cuadros iniciales de \( S_{i+1} \).
+    
+    Sea \( F_i \) el último cuadro de \( S_i \) y \( I_{i+1} \) el primer cuadro de \( S_{i+1} \). La interpolación lineal entre estos cuadros para un conjunto de cuadros interpolados \( \{C_j\} \) se define como:
+    
+    \[
+    C_j = \alpha_j F_i + (1 - \alpha_j) I_{i+1}
+    \]
+    
+    donde \( \alpha_j \) es un coeficiente de interpolación que varía linealmente de 0 a 1 a lo largo del número de cuadros interpolados.
+    
+    \item \textbf{Concatenar Segmentos con Interpolación:} Concatenamos los segmentos junto con los cuadros interpolados \( \{C_j\} \):
+    
+    \[
+    V = S_{\text{ordenado}}[1] + \{C_1, C_2, \ldots, C_k\} + S_{\text{ordenado}}[2] + \ldots + S_{\text{ordenado}}[n]
+    \]
+    
+    donde \( k \) es el número de cuadros interpolados entre cada par de segmentos.
+\end{enumerate}
+
+\end{document}
+
